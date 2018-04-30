@@ -6,3 +6,7 @@ Just exploring several ways to recreate the Ping Pong game exercise proposed by 
 Making this public to get feedback and suggestions on how to improve. I'm also looking for work.
 
 For more info about me: https://www.loicbenoit.com
+
+---
+## Live examples
+[Solution 1](https://www.loicbenoit.com/wavepad1)
