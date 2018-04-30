@@ -9,7 +9,7 @@ For more info about me: https://www.loicbenoit.com
 
 
 ## Live examples
-- [Solution 1](https://www.loicbenoit.com/wavepad/solution1/fr): Exploring the physical world metaphor using prototype delegation.
+- [Solution 1](https://www.loicbenoit.com/wavepad/solution1/en): Exploring the physical world metaphor using prototype delegation.
 
 ## Requirements
 - A recent version of FireFox, Chrome, Edge or Safari (your browser must support some recent Javascript features).
