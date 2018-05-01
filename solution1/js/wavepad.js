@@ -2,38 +2,38 @@
  * Based on https://robots.thoughtbot.com/pong-clone-in-javascript
  *
  * Objectives:
- * 	DONE	1- Reduce use of global variables: Just to see the avantages/disavantages on code design.
+ * 		DONE	1- Reduce use of global variables: Just to see the avantages/disavantages on code design.
  *		DONE	2- Try to decouple everything and to keep things DRY.
  *		DONE	3- Use Prototype delegation combined with OO design as a solution for objectives 1 and 2.
  *		DONE	4- Fluid design: Adapt canvas size too fit screen (at least on page load).
- *		TODO	5- Add something new and original to the game like wavy walls.
+ *		DONE	5- Add something new and original to the game.
+ *		TODO	6- Add something new and original to the game: What I actually wanted -> Waving walls.
  *
  * Analysis, criticism and thoughts:
- *		- Implementation seems overly complicated, maybe look into composition instead of delegation or using events.
+ *		- Still too heavy and complicated. Maybe look into composition and events.
  *		- Physical model metaphor might have been taken too far: It creates problems with detecting when
  *		  the ball must bounce on walls or be caught by goals, espcecially  when the refresh rate is low.
  *		  When that happens, the ball can cross a wall or a goal and go undetected. Indeed, function
  *		  WorldObject.touches() must be called while the ball is actually touching a wall or goal, else the
- *		  ball continues foward forever. The is no global supervisor in the current game design (no God entity).
+ *		  ball continues foward forever. The is no global supervisor in the current game design.
  *		- Maybe a global supervisor wouldn't be so bad after all if combined with events?
  *		- Game coordinates are coupled with canvas coordinate: Was aiming at decoupled coordinates. Should
- *		  be able to have objects exists off-canvas: Must add a distinction between object size in world and
+ *		  be able to have objects exists off-canvas: Must add a distinction between object placemenht in world and
  *		  object placement in canvas.
  *		- Using some global variables inside the module doesn't look so bad anymore. However, functions and logic
  *		  should still be decoupled and "reusable" as much as possible. There are some improvements in comparison
- *		  with the thoughbot.com example, but using global variables inside the module did greatly simplify parts
- *		  of their code. Food for thought.
+ *		  with the thoughbot.com example, but using module scoped global variables greatly simplified their code. 
  *
  * Comments and solutions:
  *		If you have comments or constructive criticism or ways to improve my code, please contact me.
  *		This is myself training myself to become a better programmer. Help always wanted.
  *
- * Author: Lo•c Benoit
+ * Author: LoÃ¯c Benoit
  * Website: loicbenoit.com
  * Licence: MIT
  *
  * ----------------------------------------------
- *	Copyright 2018 Lo•c Benoit
+ *	Copyright 2018 LoÃ¯c Benoit
  *	
  *	Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without
  *	restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the
@@ -53,12 +53,17 @@
 	// App logic
 	//--------------------------------------------------------------------------
 
+	//From https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
+	function getRandomInt(max) {
+		return Math.floor(Math.random() * Math.floor(max));
+	}
+	
 	//--------------------------------------------
 	// WorldObject
 	//--------------------------------------------
 	/**
 	 * Prototype for objects that have a position and size in the game world.
-	 * Note: Gradients are always 0 (default case). Overwrite the gradient methods as needed.
+	 * Note: Gradients are 0 by default. Overwrite the gradient methods as needed.
 	 * Note: Use world cartesian coordinates for x and y, with (0,0) in bottom left corner.
 	 * Note: x and y should approximate the center of mass. It makes for a better, more general
 	 *			physical model. Opens up more possibilities for extending the game.
@@ -193,6 +198,14 @@
 				// Rem: Computes the change in perpendicular direction when bouncing on an angled surface.
 				// Rem: The inverse of the gradient approximates the change in speed due to bouncing. 
 				this.dx = this.dx - surfaces[i].yGradientAt(this.x);
+				
+				// Add some randomness to the ball movements.
+				if(Math.random() > 0.75)
+				{
+					var dyCache = this.dy;
+					this.dy = (Math.random() >= 0.5) ? Math.round(this.dy * 1.3) : Math.round(this.dy * 0.8);
+					this.dy = this.dy != 0 ? this.dy : dyCache;
+				}
 			}
 		}
 	}
@@ -208,76 +221,6 @@
 	WorldObject.prototype.yGradientAt = function(x, y){
 		return 0;
 	}
-	
-	//--------------------------------------------
-	// StratifiedObject
-	//--------------------------------------------
-	/**
-	 * A StratifiedObject is WorldObject made of rectangular bands in x and/or y.
-	 * Note: Initial thoughts on producing arbitrary vertical shapes, for walls while
-	 *			still using the WorldObject metaphor for detecting bounces.
-	 *			Doesn't seems to be the correct solution at this stage... Must find something better.
-	 *	Note: Keep here as comment until ready to delete.
-	 **/
-/*
-	function StratifiedObject(x, y, xLen, yLen, xBands, yBands)
-	{
-		WorldObject.call(this, x, y, xLen, yLen);
-		
-		// Objects are made of rectangular bands in one or several directions.
-		this.xBands = Array.isArray(xBands) ? xBands : [];
-		this.yBands = Array.isArray(yBands) ? yBands : [];
-	}
-	
-	StratifiedObject.prototype = Object.create(WorldObject.prototype);
-	StratifiedObject.prototype.constructor = StratifiedObject;
-	
-	// Compute the surface approximate slope in x around (x,y).
-	// Use case: Approximating the change in speed in the perpendicular dimension due to bouncing on an angled surface.
-	StratifiedObject.prototype.xGradientAt = function(y){
-		//Convert y into an index of xBand.
-		var i = y - this.yMin;
-		a = 0;
-		b = 0;
-		
-		// x value on the left of i
-		if(i >= 1 && i < this.xBands.length)
-		{
-			a = this.xBands[i-1];
-		}
-		
-		// x value on the right of i
-		if(i >= 0 && (i + 1) < this.xBands.length)
-		{
-			b = this.xBands[i+1];
-		}
-		
-		return b - a;
-	}
-	
-	// Compute the surface approximate slope in y around (x,y).
-	// Use case: Approximating the change in speed in the perpendicular dimension due to bouncing on an angled surface.
-	StratifiedObject.prototype.yGradientAt = function(x){
-		//Convert x into an index of yBand.
-		var i = x - this.xMin;
-		a = 0;
-		b = 0;
-		
-		// y value on the left of i
-		if(i >= 1 && i < this.yBands.length)
-		{
-			a = this.yBands[i-1];
-		}
-		
-		// y value on the right of i
-		if(i >= 0 && (i + 1) < this.yBands.length)
-		{
-			b = this.yBands[i+1];
-		}
-		
-		return b - a;
-	}
-*/
 
 	//--------------------------------------------
 	// Ball
@@ -361,13 +304,14 @@
 	/**
 	 * A Player.
 	 **/
-	function Player(body, goal)
+	function Player(body, goal, codeName)
 	{
 		this.body = body;
 		this.moveLeftKey = 37;
 		this.moveRightKey = 39;
 		this.goal = goal;
-		this.dx0 = 7;
+		this.maxDx = 10;
+		this.codeName = codeName ? codeName : 'player';
 	}
 	
 	Player.prototype.getLosses = function(){
@@ -388,10 +332,10 @@
 			switch(Number(key))
 			{
 				case this.moveLeftKey:
-					this.body.dx = -1 * this.dx0;
+					this.body.dx = -1 * this.maxDx;
 					break;
 				case this.moveRightKey:
-					this.body.dx = this.dx0;
+					this.body.dx = this.maxDx;
 					break;
 				default:
 					break;
@@ -415,12 +359,13 @@
 	/**
 	 * An automated Player.
 	 **/
-	function Computer(body, goal)
+	function Computer(body, goal, codeName)
 	{
-		Player.call(this, body, goal);
+		Player.call(this, body, goal, name);
 		this.moveLeftKey = null;
 		this.moveRightKey = null;
-		this.maxDx = 7;
+		this.maxDx = 10;
+		this.codeName = codeName ? codeName : 'computer';
 	}
 	
 	Computer.prototype = Object.create(Player.prototype);
@@ -433,7 +378,7 @@
 			var ball = world.balls[0];
 			
 			var distanceToBall = this.body.y - ball.y;
-			var minTrackingDistance = Math.round(0.2 * world.yLen());
+			var minTrackingDistance = Math.round(0.15 * world.yLen());
 			
 			// If the ball is moving toward the paddle, move toward the ball
 			// Constraint: Stop ball tracking when getting too close, to give other players a chance.
@@ -496,83 +441,11 @@
 	LeftWall.prototype.constructor = LeftWall;
 	
 	LeftWall.prototype.update = function(world) {
-/*
-		Note: Test of principal for wavy walls. Utter failure.
-		TODO: Research wavy wall solutions.
-		
-		this.da = 1/720;
-		
-		//if(this.a >= this.a0)
-		if(this.a >= this.a0 && this.da > 0)
-		{
-			this.da = -1 * this.da;
-			//this.da = -1 * Math.abs(this.da);
-		}
-
-		//if(this.a <= 0.01)
-		if(this.a <= 0 && this.da < 0)
-		{
-			this.da = -1 * this.da;
-			//this.da = Math.abs(this.da);
-		}
-
-		this.a += this.da;
-*/
 	};	
 	
 	LeftWall.prototype.render = function(world) {
 		world.context.fillStyle = world.color.wall;
 		world.context.fillRect(this.xMin(), this.yMin(), this.xLen, this.yLen);
-/*
-		for(var y = 0; y < this.yLen; y++)
-		{
-			world.context.fillStyle = '#88ffff'; //world.color.wall;
-			world.context.fillRect(
-				this.xMax(),
-				y,
-				Math.round(50 * Math.sin((y * this.t / (Math.PI * 2000)) + 500)),
-				//Math.round(this.a * Math.sin((this.k * y) - (this.omega * this.t) + this.p)),
-				10
-			);
-		}
-*/
-/*
-		for(var y = 0; y < this.yLen; y += 50)
-		{
-			world.context.fillStyle = '#88ffff'; //world.color.wall;
-			world.context.fillRect(
-				this.xMax(),
-				y,
-				y,
-				50
-			);
-		}
-*/
-
-/*
-		for(var y = 0; y < this.yLen; y += 1)
-		{
-			world.context.fillStyle = '#88ffff'; //world.color.wall;
-			world.context.fillRect(
-				this.xMax(),
-				y,
-				Math.round((y / world.yLen()) * this.a * world.yLen()),
-				1
-			);
-		}
-
-		for(var y = 0; y < this.yLen; y += 1)
-		{
-			world.context.fillStyle = '#888'; //world.color.wall;
-			world.context.fillRect(
-				this.xMax(),
-				y,
-				Math.round(((world.yLen() - y) / world.yLen()) * this.a * world.yLen()),
-				1
-			);
-		}
-*/
-
 	};
 	
 	/**
@@ -644,6 +517,7 @@
 		this.balls = [];
 		this.players = [];
 		this.walls = [];
+		this.randomWalls = [];
 		this.goals = [];
 		this.color = {
 			primary: "#c86b04",
@@ -653,10 +527,12 @@
 		this.settings = {
 			ballRadius: 8,
 			goalYLen: 1,
-			paddleXLen: 50,
+			paddleXLen: 80,
 			paddleYLen: 10,
 			wallXLen: 200,//2,
 		};
+		this.scores = [];
+		this.t = 0;
 	}
 	
 	World.prototype.xLen = function(){
@@ -680,6 +556,7 @@
 	};
 	
 	World.prototype.getHorizontalSurfaces = function(){
+		//No vertical bouncing of walls, else the ball just bounces back in an unatural way.
 		return this.players.map(player => player.body);
 	};
 	
@@ -688,13 +565,60 @@
 	};
 	
 	World.prototype.addBall = function(){
-		this.balls.push(new Ball(this.xMiddle(), this.yMiddle(), this.settings.ballRadius));
+		//REM: Create ball low enough to allow the computer to detect it. Else the player gets free points because
+		//		 the computer takes too long to detect a new ball... Dont' create it at y=0, else the computer scores
+		//		 free points, continously.
+		this.balls.push(new Ball(this.xMiddle(), Math.round(0.2 * this.yMiddle()), this.settings.ballRadius));
+	};
+	
+	World.prototype.getDefaultWalls = function(){
+		return [
+			//Left
+			new LeftWall(
+				0,							//x (wall center)
+				this.yMiddle(),		//y (wall center)
+				this.settings.wallXLen,	//xLen
+				this.yLen()				//yLen
+			),
+			//Right
+			new RightWall(
+				this.xLen()-1,
+				this.yMiddle(),
+				this.settings.wallXLen,
+				this.yLen()
+			),
+		];
+	};
+	
+	World.prototype.getRandomWalls = function(){
+		return [
+			//Left
+			new LeftWall(
+				this.settings.wallXLen + getRandomInt(100),	//x (wall center)
+				70 + getRandomInt(this.yMiddle()),										//y (wall center)
+				10 + getRandomInt(50),														//xLen
+				10 + getRandomInt(Math.round(0.5 * this.yLen()))					//yLen
+			),
+			//Right
+			new RightWall(
+				this.xLen() - getRandomInt(this.xMiddle()),
+				70 + getRandomInt(this.yMiddle()),
+				20 + getRandomInt(50),
+				20 + getRandomInt(Math.round(0.5 * this.yLen()))
+			),
+		];
 	};
 	
 	World.prototype.removeBall = function(index){
 		return this.balls.splice(index, 1);
 	};
-
+	
+	//Use a cartesian coordinate system with (0,0) in the bottom left corner.
+	World.prototype.resetCartesianContext = function(){
+		this.context.translate(0, canvas.height),
+		this.context.scale(1, -1);
+	};
+	
 	World.prototype.init = function(options = {}){
 		this.settings = Object.create(
 			this.settings,
@@ -716,7 +640,8 @@
 					1,
 					this.xLen(),
 					this.settings.goalYLen
-				)
+				),
+				'player1'
 			),
 			new Computer(
 				new Paddle(
@@ -730,26 +655,12 @@
 					this.yLen() - 1,
 					this.xLen(),
 					this.settings.goalYLen
-				)
+				),
+				'player2'
 			)
 		];
-
-		this.walls = [
-			//Left
-			new LeftWall(
-				0,							//x (wall center)
-				this.yMiddle(),		//y (wall center)
-				this.settings.wallXLen,	//xLen
-				this.yLen()				//yLen
-			),
-			//Right
-			new RightWall(
-				this.xLen()-1,
-				this.yMiddle(),
-				this.settings.wallXLen,
-				this.yLen()
-			),
-		];
+		
+		this.walls = this.getDefaultWalls();
 	};
 	
 	// Update the state of every world entity.
@@ -758,8 +669,7 @@
 		{
 			this.addBall();
 		}
-		
-		// Update walls
+
 		for(var i = 0; i < this.walls.length; i++)
 		{
 			this.walls[i].update(world);
@@ -777,6 +687,34 @@
 			this.balls[i].update(world);
 		}
 		
+		// Update scores
+		this.scores = [];
+		for(var i = 0; i < this.players.length; i++)
+		{
+			//TODO: Need to track who scored...
+			// Maybe: Update a property like "ball.sender" when a player bounces the ball.
+			//			Iterate through the list of all caught balls to compute scores.
+			this.scores.push(this.players[i].getLosses());
+		}
+		
+		// Update walls
+		// Random walls: At periodic intervals for some stability + some random chance.
+		if(this.t % 120 == 0 && Math.random() > 0.75)
+		{
+			// Make sure to always have lateral walls.
+			this.walls = this.getDefaultWalls();
+			
+			// 80% chance of clearing previous random walls.
+			// 20% chance of accumulating random walls that block your way!
+			this.randomWalls = (Math.random() > 0.2)
+				? this.getRandomWalls() //Clear previous walls
+				: this.randomWalls.concat(this.getRandomWalls()); //Accumulate previous
+			
+			this.walls = this.walls.concat(this.randomWalls);
+			this.t = 0;
+		}
+		this.t++;
+		
 		return true;
 	};
 	
@@ -790,7 +728,7 @@
 		{
 			this.balls[i].render(this);
 		}
-
+		
 		// Render players
 		for(var i = 0; i < this.players.length; i++)
 		{
@@ -801,8 +739,19 @@
 		{
 			this.walls[i].render(this);
 		}
-	};
 		
+		//Render points
+		this.context.resetTransform();
+
+		this.context.font = 'bold 16pt Arial';
+		this.context.textAlign = 'center';
+		this.context.fillStyle = this.color.primary;
+		this.context.fillText(this.scores.join(' / '), this.xMiddle(), this.yMiddle());
+		
+		this.resetCartesianContext();
+	};
+	
+	
 	//--------------------------------------------------------------------------
 	// Main script
 	//--------------------------------------------------------------------------
@@ -828,15 +777,12 @@
 	
 	var context = canvas.getContext('2d');
 	
-	//Use a cartesian coordinate system with (0,0) in the bottom left corner.
-	context.translate(0, canvas.height),
-	context.scale (1, -1);
-	
 	//--------------------------------------------
 	// Create the world and all things to be.
 	//--------------------------------------------
 	var world = new World(canvas, context);
 	world.init();
+	world.resetCartesianContext();
 	
 	//--------------------------------------------
 	// One step of the loop
