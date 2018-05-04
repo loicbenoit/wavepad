@@ -10,19 +10,13 @@
  *		TODO	6- Add something new and original to the game: What I actually wanted -> Waving walls.
  *
  * Analysis, criticism and thoughts:
- *		- Still too heavy and complicated. Maybe look into composition and events.
- *		- Physical model metaphor might have been taken too far: It creates problems with detecting when
- *		  the ball must bounce on walls or be caught by goals, espcecially  when the refresh rate is low.
- *		  When that happens, the ball can cross a wall or a goal and go undetected. Indeed, function
- *		  WorldObject.touches() must be called while the ball is actually touching a wall or goal, else the
- *		  ball continues foward forever. The is no global supervisor in the current game design.
- *		- Maybe a global supervisor wouldn't be so bad after all if combined with events?
- *		- Game coordinates are coupled with canvas coordinate: Was aiming at decoupled coordinates. Should
- *		  be able to have objects exists off-canvas: Must add a distinction between object placemenht in world and
- *		  object placement in canvas.
- *		- Using some global variables inside the module doesn't look so bad anymore. However, functions and logic
- *		  should still be decoupled and "reusable" as much as possible. There are some improvements in comparison
- *		  with the thoughbot.com example, but using module scoped global variables greatly simplified their code. 
+ *		- Probably over-engineered, but it's an exercise.
+ *		- Physical model metaphor might have been taken too far.
+ *		- Maybe a global supervisor wouldn't be so bad after all?
+ *		- Using some module scoped global variables doesn't look so bad anymore for such as simple application.
+ *		  However, functions and logic should still be decoupled and "reusable" as much as possible. There are some
+ *		  improvements compared to the thoughbot.com example, but would the extra labor really be worth it in
+ *		  a production context?
  *
  * Comments and solutions:
  *		If you have comments or constructive criticism or ways to improve my code, please contact me.
