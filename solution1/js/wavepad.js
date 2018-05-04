@@ -152,13 +152,12 @@
 					|| (this.x > surfaces[i].x && this.dx <= 0) //Bounce right
 				)
 				{
-					//Move left
 					this.dx = -1 * this.dx;
 				}
 				
 				// Approximate reflexion relative to the normal vector.
 				// Rem: Computes the change in perpendicular direction when bouncing on an angled surface.
-				// Rem: The inverse of the gradient approximates the change in speed due to bouncing. 
+				// Rem: The opposite of the gradient approximates the change in speed due to bouncing. 
 				this.dy = this.dy - surfaces[i].xGradientAt(this.y);
 			}
 		}
@@ -184,13 +183,12 @@
 					|| (this.y > surfaces[i].y && this.dy <= 0) //Bounce up
 				)
 				{
-					//Move left
 					this.dy = -1 * this.dy;
 				}
 				
 				// Approximate reflexion relative to the normal vector.
 				// Rem: Computes the change in perpendicular direction when bouncing on an angled surface.
-				// Rem: The inverse of the gradient approximates the change in speed due to bouncing. 
+				// Rem: The opposite of the gradient approximates the change in speed due to bouncing. 
 				this.dx = this.dx - surfaces[i].yGradientAt(this.x);
 				
 				// Add some randomness to the ball movements.
@@ -271,7 +269,7 @@
 	// Use case: Approximating the change in speed in the perpendicular dimension due to bouncing
 	// on an angled surface or moving object.
 	Paddle.prototype.xGradientAt = function(x, y){
-		return this.dx;
+		return this.dx; //Intentionnally dx instead of dy.
 	}
 	
 	// Compute the surface approximate slope in y around (x,y).
@@ -383,7 +381,7 @@
 			}
 			// Give some x speed to the ball if:
 			//		1) The ball is moving toward the paddle (optimisation to avoid calling touches).
-			//		2) Only when the ball has x speed (to preserve iddle start at the start of a game).
+			//		2) Only when the ball has x speed (to preserve iddle start at the begining of a game).
 			//		3) Only when the ball touches the paddle.
 			// Note: When touching the paddle, the ball may receive some of the paddle's speed.
 			//			This is why giving speed to the paddle can accelerate the ball, even do
@@ -398,7 +396,7 @@
 			}
 		}
 		
-		//Limit x speed
+		//Limit x speed (imperfect tracking)
 		if(Math.abs(this.body.dx) > this.maxDx)
 		{
 			this.body.dx = this.body.dx > 0 ? this.maxDx : -1 * this.maxDx;
@@ -423,12 +421,12 @@
 	function LeftWall(x, y, xLen, yLen)
 	{
 		WorldObject.call(this, x, y, xLen, yLen);
-		this.t = 0;
+		/*this.t = 0;
 		this.f = 1;
 		this.a0 = 0.15;
 		this.a = 0;
 		this.p = 0;
-		this.omega = 0;
+		this.omega = 0;*/
 	}
 	
 	LeftWall.prototype = Object.create(WorldObject.prototype);
@@ -502,7 +500,7 @@
 	// World
 	//--------------------------------------------
 	/**
-	 * The ball
+	 * The thing that holds everything else together.
 	 **/
 	function World(canvas, context)
 	{
@@ -550,7 +548,7 @@
 	};
 	
 	World.prototype.getHorizontalSurfaces = function(){
-		//No vertical bouncing of walls, else the ball just bounces back in an unatural way.
+		//Note: Do not bounce balls verticaly on walls, else balls bounce back in an unatural ways.
 		return this.players.map(player => player.body);
 	};
 	
@@ -559,7 +557,7 @@
 	};
 	
 	World.prototype.addBall = function(){
-		//REM: Create ball low enough to allow the computer to detect it. Else the player gets free points because
+		//REM: Create balls low enough to allow the computer to detect it. Else the player gets free points because
 		//		 the computer takes too long to detect a new ball... Dont' create it at y=0, else the computer scores
 		//		 free points, continously.
 		this.balls.push(new Ball(this.xMiddle(), Math.round(0.2 * this.yMiddle()), this.settings.ballRadius));
@@ -692,7 +690,7 @@
 		}
 		
 		// Update walls
-		// Random walls: At periodic intervals for some stability + some random chance.
+		// Note: Adding random walls at periodic intervals for some stability + some random chance.
 		if(this.t % 120 == 0 && Math.random() > 0.75)
 		{
 			// Make sure to always have lateral walls.
