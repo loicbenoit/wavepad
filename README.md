@@ -14,3 +14,7 @@ For more info about me: https://www.loicbenoit.com
 ## Requirements
 - A recent version of FireFox, Chrome, Edge or Safari (your browser must support some recent Javascript features).
 - Will probably not work on IE (too old for modern Javascript). You should upgrade to FireFox, Chrome, Edge or Safari. Unless coding for a commercial project, I don't care for IE anymore. It's completely outdated and was replaced by Edge for a good reason.
+
+## Know issues
+- Touch support / Mobile support: Will add touch detection soon.
+- Chrome on Windows: A friend reported problems with Chrome on Windows. I will visit my friend to diagnose the problem on his computer, because it works on my computer. When fixed, will report cause/status here.
