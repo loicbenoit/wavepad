@@ -513,7 +513,7 @@
 		this.goals = [];
 		this.color = {
 			primary: "#c86b04",
-			wall: '#000022',
+			wall: '#000000',
 			background: '#00ffff',
 		};
 		this.settings = {
