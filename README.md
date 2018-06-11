@@ -17,4 +17,4 @@ For more info about me: https://www.loicbenoit.com
 
 ## Know issues
 - Touch support / Mobile support: Will add touch detection soon.
-- Chrome on Windows: A friend reported problems with Chrome on Windows. I will visit my friend to diagnose the problem on his computer, because it works on my computer. When fixed, will report cause/status here.
+- Edge on Windows: The Google analytics code creates a JS error in Edge. It's a Websocket error. I'll need to get a Windows computer and investigate this further. I observed no issue in Chrome and Firefox on Mac/Windows/Linux. This seems to be limited to Edge and IE. 
