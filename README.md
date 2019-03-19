@@ -1,7 +1,7 @@
 # WavePad
 A game programming exercice
 
-Just exploring several ways to recreate the Ping Pong game exercise proposed by https://robots.thoughtbot.com/pong-clone-in-javascript . First trial is based on a physical world metaphor. Second trial will be more event oriented. And so on, exploring various coding strategies for the sake of it.
+Just exploring several ways to recreate the Ping Pong game exercise proposed by https://robots.thoughtbot.com/pong-clone-in-javascript . First trial is based on a physical world metaphor. ~~Second trial will be more event oriented. And so on, exploring various coding strategies for the sake of it.~~ Update 2019-03-18: Too busy at work and moved on to other coding challenges.
 
 Making this public to get feedback and suggestions on how to improve. I'm also looking for work.
 
@@ -16,5 +16,5 @@ For more info about me: https://www.loicbenoit.com
 - Will probably not work on IE (too old for modern Javascript). You should upgrade to FireFox, Chrome, Edge or Safari. Unless coding for a commercial project, I don't care for IE anymore. It's completely outdated and was replaced by Edge for a good reason.
 
 ## Know issues
-- Touch support / Mobile support: Will add touch detection soon.
+- Touch support / Mobile support: ~~Will add touch detection soon~~.
 - Edge on Windows: The Google analytics code creates a JS error in Edge. It's a Websocket error. I'll need to get a Windows computer and investigate this further. I observed no issue in Chrome and Firefox on Mac/Windows/Linux. This seems to be limited to Edge and IE. 
